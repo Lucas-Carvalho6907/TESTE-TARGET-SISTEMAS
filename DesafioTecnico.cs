@@ -2,171 +2,158 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-//////////////////////////////////////////////////////////////
-// 1) CÁLCULO DE COMISSÃO POR VENDEDOR
-//////////////////////////////////////////////////////////////
-
-public class CalculoComissao
+class Program
 {
+    // ===== MODELOS =====
+
     public class Venda
     {
-        public string Vendedor { get; set; }
+        public string Vendedor { get; set; } = string.Empty;
         public double Valor { get; set; }
     }
 
-    public Dictionary<string, double> Calcular(List<Venda> vendas)
+    public class Produto
     {
-        Dictionary<string, double> totalPorVendedor = new Dictionary<string, double>();
-
-        foreach (var venda in vendas)
-        {
-            double comissao = 0;
-
-            if (venda.Valor >= 500)
-                comissao = venda.Valor * 0.05;
-            else if (venda.Valor >= 100)
-                comissao = venda.Valor * 0.01;
-
-            if (!totalPorVendedor.ContainsKey(venda.Vendedor))
-                totalPorVendedor[venda.Vendedor] = 0;
-
-            totalPorVendedor[venda.Vendedor] += comissao;
-        }
-
-        return totalPorVendedor;
-    }
-}
-
-//////////////////////////////////////////////////////////////
-// 2) SISTEMA DE MOVIMENTAÇÃO DE ESTOQUE
-//////////////////////////////////////////////////////////////
-
-public class Produto
-{
-    public int Codigo { get; set; }
-    public string Descricao { get; set; }
-    public int Estoque { get; set; }
-}
-
-public class Movimentacao
-{
-    public int Id { get; set; }
-    public int CodigoProduto { get; set; }
-    public int Quantidade { get; set; }
-    public string DescricaoMov { get; set; }
-    public int EstoqueFinal { get; set; }
-}
-
-public class ControleEstoque
-{
-    private List<Produto> Produtos;
-    private int contadorId = 1;
-
-    public ControleEstoque(List<Produto> produtos)
-    {
-        Produtos = produtos;
+        public int Codigo { get; set; }
+        public string Descricao { get; set; } = string.Empty;
+        public int Estoque { get; set; }
     }
 
-    public Movimentacao Movimentar(int codigo, int quantidade, string descricao)
+    public class Movimentacao
     {
-        var produto = Produtos.FirstOrDefault(p => p.Codigo == codigo);
-        if (produto == null)
-            throw new Exception("Produto não encontrado");
-
-        produto.Estoque += quantidade;
-
-        var mov = new Movimentacao
-        {
-            Id = contadorId++,
-            CodigoProduto = codigo,
-            Quantidade = quantidade,
-            DescricaoMov = descricao,
-            EstoqueFinal = produto.Estoque
-        };
-
-        return mov;
+        public int Id { get; set; }
+        public int CodigoProduto { get; set; }
+        public int Quantidade { get; set; }
+        public string DescricaoMov { get; set; } = string.Empty;
     }
-}
 
-//////////////////////////////////////////////////////////////
-// 3) CÁLCULO DE JUROS COM MULTA DE 2,5% AO DIA
-//////////////////////////////////////////////////////////////
-
-public class CalculoJuros
-{
-    public (double juros, double valorFinal, int diasAtraso) Calcular(double valor, DateTime vencimento)
-    {
-        var hoje = DateTime.Now;
-        int diasAtraso = (hoje - vencimento).Days;
-
-        if (diasAtraso <= 0)
-            return (0, valor, 0);
-
-        double juros = valor * 0.025 * diasAtraso;
-        double valorFinal = valor + juros;
-
-        return (juros, valorFinal, diasAtraso);
-    }
-}
-
-//////////////////////////////////////////////////////////////
-// 4) EXECUÇÃO PARA EXEMPLO
-//////////////////////////////////////////////////////////////
-
-public class Program
-{
-    public static void Main()
+    static void Main()
     {
         Console.WriteLine("===== TESTE TÉCNICO =====\n");
 
-        // -------------------------------
-        // EXEMPLO 1 - COMISSÕES
-        // -------------------------------
-        var comissao = new CalculoComissao();
+        // ============================================================================
+        //                               1. COMISSÕES
+        // ============================================================================
 
-        var vendasExemplo = new List<CalculoComissao.Venda>
+        var vendas = new List<Venda>
         {
-            new CalculoComissao.Venda { Vendedor = "João", Valor = 1200 },
-            new CalculoComissao.Venda { Vendedor = "Maria", Valor = 300 },
-            new CalculoComissao.Venda { Vendedor = "João", Valor = 80 }
+            new Venda { Vendedor = "João Silva", Valor = 1200.50 },
+            new Venda { Vendedor = "João Silva", Valor = 950.75 },
+            new Venda { Vendedor = "João Silva", Valor = 1800.00 },
+            new Venda { Vendedor = "João Silva", Valor = 1400.30 },
+            new Venda { Vendedor = "João Silva", Valor = 1100.90 },
+            new Venda { Vendedor = "João Silva", Valor = 1550.00 },
+            new Venda { Vendedor = "João Silva", Valor = 1700.80 },
+            new Venda { Vendedor = "João Silva", Valor = 250.30 },
+            new Venda { Vendedor = "João Silva", Valor = 480.75 },
+            new Venda { Vendedor = "João Silva", Valor = 320.40 },
+
+            new Venda { Vendedor = "Maria Souza", Valor = 2100.40 },
+            new Venda { Vendedor = "Maria Souza", Valor = 1350.60 },
+            new Venda { Vendedor = "Maria Souza", Valor = 950.20 },
+            new Venda { Vendedor = "Maria Souza", Valor = 1600.75 },
+            new Venda { Vendedor = "Maria Souza", Valor = 1750.00 },
+            new Venda { Vendedor = "Maria Souza", Valor = 1450.90 },
+            new Venda { Vendedor = "Maria Souza", Valor = 400.50 },
+            new Venda { Vendedor = "Maria Souza", Valor = 180.20 },
+            new Venda { Vendedor = "Maria Souza", Valor = 90.75 },
+
+            new Venda { Vendedor = "Carlos Oliveira", Valor = 800.50 },
+            new Venda { Vendedor = "Carlos Oliveira", Valor = 1200.00 },
+            new Venda { Vendedor = "Carlos Oliveira", Valor = 1950.30 },
+            new Venda { Vendedor = "Carlos Oliveira", Valor = 1750.80 },
+            new Venda { Vendedor = "Carlos Oliveira", Valor = 1300.60 },
+            new Venda { Vendedor = "Carlos Oliveira", Valor = 300.40 },
+            new Venda { Vendedor = "Carlos Oliveira", Valor = 500.00 },
+            new Venda { Vendedor = "Carlos Oliveira", Valor = 125.75 },
+
+            new Venda { Vendedor = "Ana Lima", Valor = 1000.00 },
+            new Venda { Vendedor = "Ana Lima", Valor = 1100.50 },
+            new Venda { Vendedor = "Ana Lima", Valor = 1250.75 },
+            new Venda { Vendedor = "Ana Lima", Valor = 1400.20 },
+            new Venda { Vendedor = "Ana Lima", Valor = 1550.90 },
+            new Venda { Vendedor = "Ana Lima", Valor = 1650.00 },
+            new Venda { Vendedor = "Ana Lima", Valor = 75.30 },
+            new Venda { Vendedor = "Ana Lima", Valor = 420.90 },
+            new Venda { Vendedor = "Ana Lima", Valor = 315.40 }
         };
 
-        var resultado = comissao.Calcular(vendasExemplo);
+        var comissoes = vendas
+            .GroupBy(v => v.Vendedor)
+            .Select(g => new
+            {
+                Vendedor = g.Key,
+                TotalComissao = g.Sum(v =>
+                    v.Valor < 100 ? 0 :
+                    v.Valor < 500 ? v.Valor * 0.01 :
+                                   v.Valor * 0.05
+                )
+            });
 
-        Console.WriteLine("=== Comissão ===");
-        foreach (var r in resultado)
-            Console.WriteLine($"{r.Key}: R$ {r.Value:F2}");
+        Console.WriteLine("=== Comissões Calculadas ===");
+        foreach (var c in comissoes)
+            Console.WriteLine($"{c.Vendedor}: R$ {c.TotalComissao:F2}");
 
-        Console.WriteLine("\n");
+        // ============================================================================
+        //                      2. MOVIMENTAÇÕES DE ESTOQUE
+        // ============================================================================
 
-        // -------------------------------
-        // EXEMPLO 2 - ESTOQUE
-        // -------------------------------
-
-        var listaProdutos = new List<Produto>
+        var produtos = new List<Produto>
         {
             new Produto { Codigo = 101, Descricao = "Caneta Azul", Estoque = 150 },
-            new Produto { Codigo = 102, Descricao = "Caderno", Estoque = 75 }
+            new Produto { Codigo = 102, Descricao = "Caderno Universitário", Estoque = 75 },
+            new Produto { Codigo = 103, Descricao = "Borracha Branca", Estoque = 200 },
+            new Produto { Codigo = 104, Descricao = "Lápis Preto HB", Estoque = 320 },
+            new Produto { Codigo = 105, Descricao = "Marcador de Texto Amarelo", Estoque = 90 }
         };
 
-        var estoque = new ControleEstoque(listaProdutos);
+        Console.WriteLine("\n\n=== Movimentações de Estoque ===\n");
 
-        var mov = estoque.Movimentar(101, -10, "Saída para venda");
-        Console.WriteLine("=== Movimentação Estoque ===");
-        Console.WriteLine($"ID: {mov.Id}, Produto: {mov.CodigoProduto}, Estoque Final: {mov.EstoqueFinal}");
+        var movimentacoes = new List<Movimentacao>
+        {
+            new Movimentacao { Id = 1, CodigoProduto = 101, Quantidade = -10, DescricaoMov = "Saída para venda" },
+            new Movimentacao { Id = 2, CodigoProduto = 102, Quantidade = +20, DescricaoMov = "Reposição de estoque" },
+            new Movimentacao { Id = 3, CodigoProduto = 103, Quantidade = -15, DescricaoMov = "Saída para consumo interno" },
+            new Movimentacao { Id = 4, CodigoProduto = 104, Quantidade = +30, DescricaoMov = "Entrada por compra" },
+            new Movimentacao { Id = 5, CodigoProduto = 105, Quantidade = -5,  DescricaoMov = "Saída por avaria" }
+        };
 
-        Console.WriteLine("\n");
+        foreach (var mov in movimentacoes)
+        {
+            var produto = produtos.First(p => p.Codigo == mov.CodigoProduto);
 
-        // -------------------------------
-        // EXEMPLO 3 - JUROS
-        // -------------------------------
+            int estoqueInicial = produto.Estoque;
+            produto.Estoque += mov.Quantidade;
+            int estoqueFinal = produto.Estoque;
 
-        var juros = new CalculoJuros();
-        var calc = juros.Calcular(1000, new DateTime(2025, 1, 10));
+            string tipo = mov.Quantidade >= 0 ? "Entrada" : "Saída";
+            string qtdFmt = mov.Quantidade >= 0 ? $"+{mov.Quantidade}" : mov.Quantidade.ToString();
 
-        Console.WriteLine("=== Juros ===");
-        Console.WriteLine($"Dias atraso: {calc.diasAtraso}");
-        Console.WriteLine($"Juros: R$ {calc.juros:F2}");
-        Console.WriteLine($"Valor Final: R$ {calc.valorFinal:F2}");
+            Console.WriteLine($"ID: {mov.Id}");
+            Console.WriteLine($"Produto: {produto.Codigo} - {produto.Descricao}");
+            Console.WriteLine($"Tipo: {tipo}");
+            Console.WriteLine($"Quantidade: {qtdFmt}");
+            Console.WriteLine($"Estoque Inicial: {estoqueInicial}");
+            Console.WriteLine($"Estoque Final: {estoqueFinal}");
+            Console.WriteLine($"Descrição: {mov.DescricaoMov}");
+            Console.WriteLine("-----------------------------\n");
+        }
+
+        // ============================================================================
+        //                                3. JUROS
+        // ============================================================================
+
+        Console.WriteLine("=== Cálculo de Juros ===");
+
+        double valor = 1000;
+        DateTime vencimento = new DateTime(2024, 1, 10);
+        int diasAtraso = (DateTime.Now - vencimento).Days;
+
+        double juros = valor * 0.025 * diasAtraso;
+        double final = valor + juros;
+
+        Console.WriteLine($"Dias de atraso: {diasAtraso}");
+        Console.WriteLine($"Juros: R$ {juros:F2}");
+        Console.WriteLine($"Valor Final: R$ {final:F2}");
     }
 }
